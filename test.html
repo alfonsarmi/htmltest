@@ -1,434 +1,433 @@
-<div class="card p-4">
-    <h1>Seguimiento de ofertas</h1>
-
-    <div class="row">
-        <div class="col-12 text-center">
-            <app-loader-page *ngIf="loading"></app-loader-page>
-        </div>
-        <div class="col-12 col-md-6 col-xl-2" *ngIf="!loading">
-            <label class="bolder mb-1">Fecha desde</label><br>
-            <p-calendar styleClass="fechas" [locale]="es" [(ngModel)]="desde" dateFormat="dd/mm/yy"></p-calendar>
-        </div>
-        <div class="col-12 col-md-6 col-xl-2" *ngIf="!loading">
-            <label class="bolder mb-1">Fecha hasta</label><br>
-            <p-calendar styleClass="fechas" [locale]="es" [(ngModel)]="hasta" dateFormat="dd/mm/yy"></p-calendar>
-        </div>
-        <div [ngClass]="{'col-12': showSelector, 'col-md-6': showSelector}" *ngIf="!loading">
-            <app-selector-cif-sfid (itemEvent)="sfidsOutput($event)" (shown)="showSelector($event)">
-            </app-selector-cif-sfid>
-        </div>
-        <div class="col-12" *ngIf="!loading">
-            <button class="btn btn-primary btn-consultar float-right" (click)="getSegOfertas()">Consultar</button>
-
-
-        </div>
-    </div>
-</div>
-
-<div class="card p-4 mt-3" *ngIf="ofertas || loadingData">
-    <h2 class="red-vf">Ofertas</h2>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <app-loader-page *ngIf="loadingData"></app-loader-page>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <p-table *ngIf="!loadingData" #dt [value]="ofertas" [paginator]="false" [rows]="20" [scrollable]="true" scrollHeight="15rem">
-        <ng-template pTemplate="summary">
-            <div class="ui-helper-clearfix" style="text-align: left">
-                <button class="btn btn-primary float-right" (click)="exportExcel(ofertas)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
+        <div class="card p-4">
+            <h1>Seguimiento de ofertas</h1>
+
+            <div class="row">
+                <div class="col-12 text-center">
+                    <app-loader-page *ngIf="loading"></app-loader-page>
+                </div>
+                <div class="col-12 col-md-6 col-xl-2" *ngIf="!loading">
+                    <label class="bolder mb-1">Fecha desde</label><br>
+                    <p-calendar styleClass="fechas" [locale]="es" [(ngModel)]="desde" dateFormat="dd/mm/yy"></p-calendar>
+                </div>
+                <div class="col-12 col-md-6 col-xl-2" *ngIf="!loading">
+                    <label class="bolder mb-1">Fecha hasta</label><br>
+                    <p-calendar styleClass="fechas" [locale]="es" [(ngModel)]="hasta" dateFormat="dd/mm/yy"></p-calendar>
+                </div>
+                <div [ngClass]="{'col-12': showSelector, 'col-md-6': showSelector}" *ngIf="!loading">
+                    <app-selector-cif-sfid (itemEvent)="sfidsOutput($event)" (shown)="showSelector($event)">
+                    </app-selector-cif-sfid>
+                </div>
+                <div class="col-12" *ngIf="!loading">
+                    <button class="btn btn-primary btn-consultar float-right" (click)="getSegOfertas()">Consultar</button>
+                </div>
             </div>
+        </div>
+
+
+
+        <ng-container *ngIf="ofertaCapta && ofertaFide && ofertaTerminales && ofertaCapta.length > 0 && ofertaFide.length > 0 && ofertaTerminales.length > 0 && !loadingData; else loadingSpinner">
+            <div class="card p-4 mt-3">
+                <h2 class="red-vf">Ofertas</h2>
+                <p-table class="mt-4" #dt [value]="ofertaCapta | GroupBy:captaDD === 'comercial' ? ['estado'] : captaDD === 'pdv' ? ['sfid', 'estado'] : ['estado', 'sfid', 'idUsuario']" [paginator]="true" [rows]="20" [scrollable]="true" scrollHeight="15rem">
+                    <ng-template pTemplate="caption">
+                        <div class="ui-helper-clearfix row mx-0" style="text-align: left">
+                            <h3 class="red-vf">CAPTACIÓN</h3>
+                            <div class="col">
+                                <div class="row">
+                                    <label class="ml-auto mr-3" for="ddterminales">Agrupación</label>
+                                    <p-dropdown id="ddterminales" style="width: 15rem;" class="mr-3" [options]="config.ddAgrupacion" [(ngModel)]="captaDD"></p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <ng-container *ngFor="let oferta of ofertaCapta | objectKeys">
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="captaDD === 'general' && oferta !== 'idUsuario' && oferta !== 'cif' && oferta !== 'distribuidor' && oferta !== 'sfid' && oferta !== 'nombre' && oferta !== 'comercial'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="captaDD === 'comercial' && oferta !== 'idUsuario'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="captaDD === 'pdv' && oferta !== 'idUsuario' && oferta !== 'nombre' && oferta !== 'comercial'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-ofer>
+                        <tr>
+                            <ng-container *ngFor="let item of ofertaCapta | objectKeys">
+                                <td class="min-width-col" *ngIf="captaDD === 'general' && item !== 'idUsuario' && item !== 'cif' && item !== 'distribuidor' && item !== 'sfid' && item !== 'nombre' && item !== 'comercial'">{{ ofer[item] }}</td>
+                                <td class="min-width-col" *ngIf="captaDD === 'comercial' && item !== 'idUsuario'">{{ ofer[item] }}</td>
+                                <td class="min-width-col" *ngIf="captaDD === 'pdv' && item !== 'idUsuario' && item !== 'nombre' && item !== 'comercial'">{{ ofer[item] }}</td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <ng-container *ngFor="let item of ofertaCapta | objectKeys; let i=index">
+                                <td class="min-width-col" *ngIf="captaDD === 'general' && item === 'estado'">TOTAL</td>
+                                <td class="min-width-col" *ngIf="(captaDD === 'comercial' || captaDD === 'pdv') && item === 'cif'">TOTAL</td>
+                                <ng-container *ngIf="i > 0">
+                                    <td class="min-width-col" *ngIf="captaDD === 'general' && item !== 'idUsuario' && item !== 'cif' && item !== 'distribuidor' && item !== 'sfid' && item !== 'nombre' && item !== 'comercial' && item !== 'estado'" >{{ofertaCapta | sumBy:item | number}}</td>
+                                    <td class="min-width-col" *ngIf="captaDD === 'comercial' && item !== 'idUsuario' && item !== 'cif'">{{ofertaCapta | sumBy:item | number}}</td>
+                                    <td class="min-width-col" *ngIf="captaDD === 'pdv' && item !== 'idUsuario' && item !== 'nombre' && item !== 'comercial' && item !== 'cif'">{{ofertaCapta | sumBy:item | number}}</td>
+                                </ng-container>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <div class="row mx-0 mt-3">
+                    <button class="btn btn-primary ml-auto" (click)="exportExcel(ofertaCapta)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
+                </div>
+
+                <p-table class="mt-4" #dt2 [value]="ofertaFide | GroupBy:fideDD === 'comercial' ? ['estado'] : fideDD === 'pdv' ? ['sfid', 'estado'] : ['estado', 'sfid', 'idUsuario']" [paginator]="true" [rows]="20" [scrollable]="true" scrollHeight="15rem">
+                    <ng-template pTemplate="caption">
+                        <div class="ui-helper-clearfix row mx-0" style="text-align: left">
+                            <h3 class="red-vf">FIDELIZACIÓN</h3>
+                            <div class="col">
+                                <div class="row">
+                                    <label class="ml-auto mr-3" for="ddterminales">Agrupación</label>
+                                    <p-dropdown style="width: 15rem;" class="mr-3" [options]="config.ddAgrupacion" [(ngModel)]="fideDD"></p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <ng-container *ngFor="let oferta of ofertaFide | objectKeys">
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="fideDD === 'general' && oferta !== 'idUsuario' && oferta !== 'cif' && oferta !== 'distribuidor' && oferta !== 'sfid' && oferta !== 'nombre' && oferta !== 'comercial'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="fideDD === 'comercial' && oferta !== 'idUsuario'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="fideDD === 'pdv' && oferta !== 'idUsuario' && oferta !== 'nombre' && oferta !== 'comercial'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-ofer>
+                        <tr>
+                            <ng-container *ngFor="let item of ofertaFide | objectKeys">
+                                <td class="min-width-col" *ngIf="fideDD === 'general' && item !== 'idUsuario' && item !== 'cif' && item !== 'distribuidor' && item !== 'sfid' && item !== 'nombre' && item !== 'comercial'">{{ ofer[item] }}</td>
+                                <td class="min-width-col" *ngIf="fideDD === 'comercial' && item !== 'idUsuario'">{{ ofer[item] }}</td>
+                                <td class="min-width-col" *ngIf="fideDD === 'pdv' && item !== 'idUsuario' && item !== 'nombre' && item !== 'comercial'">{{ ofer[item] }}</td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <ng-container *ngFor="let item of ofertaFide | objectKeys; let i=index">
+                                <td class="min-width-col" *ngIf="fideDD === 'general' && item === 'estado'">TOTAL</td>
+                                <td class="min-width-col" *ngIf="(fideDD === 'comercial' || fideDD === 'pdv') && item === 'cif'">TOTAL</td>
+                                <ng-container *ngIf="i > 0">
+                                    <td class="min-width-col" *ngIf="fideDD === 'general' && item !== 'idUsuario' && item !== 'cif' && item !== 'distribuidor' && item !== 'sfid' && item !== 'nombre' && item !== 'comercial' && item !== 'estado'" >{{ofertaFide | sumBy:item | number}}</td>
+                                    <td class="min-width-col" *ngIf="fideDD === 'comercial' && item !== 'idUsuario' && item !== 'cif'">{{ofertaFide | sumBy:item | number}}</td>
+                                    <td class="min-width-col" *ngIf="fideDD === 'pdv' && item !== 'idUsuario' && item !== 'nombre' && item !== 'comercial' && item !== 'cif'">{{ofertaFide | sumBy:item | number}}</td>
+                                </ng-container>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <div class="row mx-0 mt-3">
+                    <button class="btn btn-primary ml-auto" (click)="exportExcel(ofertaCapta)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
+                </div>
+
+                <p-table #dt3 class="mt-4" [value]="ofertaTerminales | GroupBy:terminalesDD === 'comercial' ? ['estado'] : terminalesDD === 'pdv' ? ['sfid', 'estado'] : ['estado', 'sfid', 'idUsuario']" [paginator]="true" [rows]="20" [scrollable]="true" scrollHeight="15rem">
+                    <ng-template pTemplate="caption">
+                        <div class="ui-helper-clearfix row mx-0" style="text-align: left">
+                            <h3 class="red-vf">TERMINALES Y DISPOSITIVOS</h3>
+                            <div class="col">
+                                <div class="row">
+                                    <label class="ml-auto mr-3" for="ddterminales">Agrupación</label>
+                                    <p-dropdown style="width: 15rem;" class="mr-3" [options]="config.ddAgrupacion" [(ngModel)]="terminalesDD"></p-dropdown>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <ng-container *ngFor="let oferta of ofertaTerminales | objectKeys">
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="terminalesDD === 'general' && oferta !== 'idUsuario' && oferta !== 'cif' && oferta !== 'distribuidor' && oferta !== 'sfid' && oferta !== 'nombre' && oferta !== 'comercial'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="terminalesDD === 'comercial' && oferta !== 'idUsuario'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                                <th class="min-width-col" [pSortableColumn]="oferta" *ngIf="terminalesDD === 'pdv' && oferta !== 'idUsuario' && oferta !== 'nombre' && oferta !== 'comercial'">{{oferta | uppercase }}
+                                    <p-sortIcon [field]="oferta"></p-sortIcon>
+                                </th>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-ofer>
+                        <tr>
+                            <ng-container *ngFor="let item of ofertaTerminales | objectKeys">
+                                <td class="min-width-col" *ngIf="terminalesDD === 'general' && item !== 'idUsuario' && item !== 'cif' && item !== 'distribuidor' && item !== 'sfid' && item !== 'nombre' && item !== 'comercial'">{{ ofer[item] }}</td>
+                                <td class="min-width-col" *ngIf="terminalesDD === 'comercial' && item !== 'idUsuario'">{{ ofer[item] }}</td>
+                                <td class="min-width-col" *ngIf="terminalesDD === 'pdv' && item !== 'idUsuario' && item !== 'nombre' && item !== 'comercial'">{{ ofer[item] }}</td>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="footer">
+                        <tr>
+                            <ng-container *ngFor="let item of ofertaTerminales | objectKeys; let i=index">
+                                <td class="min-width-col" *ngIf="terminalesDD === 'general' && item === 'estado'">TOTAL</td>
+                                <td class="min-width-col" *ngIf="(terminalesDD === 'comercial' || terminalesDD === 'pdv') && item === 'cif'">TOTAL</td>
+                                <ng-container *ngIf="i > 0">
+                                    <td class="min-width-col" *ngIf="terminalesDD === 'general' && item !== 'idUsuario' && item !== 'cif' && item !== 'distribuidor' && item !== 'sfid' && item !== 'nombre' && item !== 'comercial' && item !== 'estado'" >{{ofertaTerminales | sumBy:item | number}}</td>
+                                    <td class="min-width-col" *ngIf="terminalesDD === 'comercial' && item !== 'idUsuario' && item !== 'cif'">{{ofertaTerminales | sumBy:item | number}}</td>
+                                    <td class="min-width-col" *ngIf="terminalesDD === 'pdv' && item !== 'idUsuario' && item !== 'nombre' && item !== 'comercial' && item !== 'cif'">{{ofertaTerminales | sumBy:item | number}}</td>
+                                </ng-container>
+                            </ng-container>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <div class="row  mx-0  mt-3">
+                    <button class="btn btn-primary ml-auto" (click)="exportExcel(ofertaCapta)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
+                </div>
 
 
 
 
-        </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <ng-container *ngFor="let oferta of ofertas | objectKeys">
-                    <th class="min-width-col" pSortableColumn="oferta">{{oferta | uppercase }}
-                        <p-sortIcon field="oferta"></p-sortIcon>
-                    </th>
-                </ng-container>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-ofer>
-            <tr>
-                <ng-container *ngFor="let item of ofertas | objectKeys">
-                    <td class="min-width-col">{{ ofer[item] }}</td>
-                </ng-container>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="footer">
-            <tr>
-                <ng-container *ngFor="let item of ofertas | objectKeys; let i=index">
-                    <td class="min-width-col" *ngIf="i === 0">TOTAL</td>
-                    <ng-container *ngIf="i > 0">
-                        <td class="min-width-col">{{ofertas | sumBy:item | number}}</td>
-                    </ng-container>
-                </ng-container>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
 
-
-
-<div class="card p-4 mt-3" *ngIf="resumen || loadingData">
-    <h2 class="red-vf">Resumen Propuestas Diarias</h2>
-
-    <app-loader-page *ngIf="loadingData"></app-loader-page>
-
-    <p-table *ngIf="!loadingData" #dt [value]="resumen" [paginator]="false" [rows]="20" [responsive]="true">
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="fecha">FECHA
-                    <p-sortIcon field="fecha"></p-sortIcon>
-                </th>
-                <th pSortableColumn="propuestas">PROPUESTAS
-                    <p-sortIcon field="propuestas"></p-sortIcon>
-                </th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-r>
-            <tr>
-                <td>{{r.fecha | date:'dd/MM/yyyy'}}</td>
-                <td>{{r.propuestas}}</td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="footer">
-            <tr>
-                <td>TOTAL</td>
-                <td>{{resumen | sumBy: 'propuestas' | number}}</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
-
-<div class="card p-4 mt-3" *ngIf="detalle || loadingData">
-    <h2 class="red-vf">Seguimiento estado general ofertas</h2>
-
-    <app-loader-page *ngIf="loadingData"></app-loader-page>
-
-    <p-table *ngIf="!loadingData" #dt [value]="detalle" [paginator]="true" [rows]="20" [responsive]="true" [autoLayout]="true" class="text-nowrap">
-        <ng-template pTemplate="summary">
-            <div class="ui-helper-clearfix" style="text-align: left">
-                <button class="btn btn-primary float-right" (click)="exportExcel(detalle)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
             </div>
+        </ng-container>
+
+        <ng-template #loadingSpinner>
+            <app-loader-page *ngIf="loadingData"></app-loader-page>
         </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <th class="text-center" pSortableColumn="offerId">PRESUPUESTO
-                    <p-sortIcon field="offerId"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="created_date">FECHA
-                    <p-sortIcon field="created_date"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="sfid">SFID
-                    <p-sortIcon field="sfid"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="pdv">PUNTO DE VENTA
-                    <p-sortIcon field="pdv"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="usuario">COMERCIAL
-                    <p-sortIcon field="usuario"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="cliente">CLIENTE
-                    <p-sortIcon field="cliente"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="telefono">TELEFONO
-                    <p-sortIcon field="telefono"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="nif">NIF
-                    <p-sortIcon field="nif"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="segmento">SEGMENTO
-                    <p-sortIcon field="segmento"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="cod_postal">C.P.
-                    <p-sortIcon field="cod_postal"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="estado">ESTADO
-                    <p-sortIcon field="estado"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="color">COLOR
-                    <p-sortIcon field="color"></p-sortIcon>
-                </th>
-            </tr>
-            <!-- <tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="card p-4 mt-3" *ngIf="resumen || loadingData">
+            <h2 class="red-vf">Resumen Propuestas Diarias</h2>
+
+            <app-loader-page *ngIf="loadingData"></app-loader-page>
+
+            <p-table *ngIf="!loadingData" #dt [value]="resumen" [paginator]="false" [rows]="20" [responsive]="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="fecha">FECHA
+                            <p-sortIcon field="fecha"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="propuestas">PROPUESTAS
+                            <p-sortIcon field="propuestas"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-r>
+                    <tr>
+                        <td>{{r.fecha | date:'dd/MM/yyyy'}}</td>
+                        <td>{{r.propuestas}}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="footer">
+                    <tr>
+                        <td>TOTAL</td>
+                        <td>{{resumen | sumBy: 'propuestas' | number}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div class="card p-4 mt-3" *ngIf="detalle || loadingData">
+            <h2 class="red-vf">Seguimiento estado general ofertas</h2>
+
+            <app-loader-page *ngIf="loadingData"></app-loader-page>
+
+            <p-table *ngIf="!loadingData" #dt [value]="detalle" [paginator]="true" [rows]="20" [responsive]="true" [autoLayout]="true" class="text-nowrap">
+                <ng-template pTemplate="summary">
+                    <div class="ui-helper-clearfix" style="text-align: left">
+                        <button class="btn btn-primary float-right" (click)="exportExcel(detalle)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center" pSortableColumn="offerId">PRESUPUESTO
+                            <p-sortIcon field="offerId"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="created_date">FECHA
+                            <p-sortIcon field="created_date"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="sfid">SFID
+                            <p-sortIcon field="sfid"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="pdv">PUNTO DE VENTA
+                            <p-sortIcon field="pdv"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="usuario">COMERCIAL
+                            <p-sortIcon field="usuario"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="cliente">CLIENTE
+                            <p-sortIcon field="cliente"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="telefono">TELEFONO
+                            <p-sortIcon field="telefono"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="nif">NIF
+                            <p-sortIcon field="nif"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="segmento">SEGMENTO
+                            <p-sortIcon field="segmento"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="cod_postal">C.P.
+                            <p-sortIcon field="cod_postal"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="estado">ESTADO
+                            <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="color">COLOR
+                            <p-sortIcon field="color"></p-sortIcon>
+                        </th>
+                    </tr>
+                    <!-- <tr>
                 <th>
                     <input pInputText type="text" (input)="dt.filter($event.target.value, 'offerId', 'contains')">
                 </th>
             </tr> -->
-        </ng-template>
-        <ng-template pTemplate="body" let-d>
-            <tr>
-                <td>
-                    <a [routerLink]="['/configurador/offer-detail', d.offerId]">{{d.offerId}}</a>
-                </td>
-                <td>{{d.created_date | date:'dd/MM/yyyy'}}</td>
-                <td>{{d.sfid}}</td>
-                <td>{{d.pdv}}</td>
-                <td>{{d.usuario}}</td>
-                <td>{{d.cliente}}</td>
-                <td>{{d.telefono}}</td>
-                <td>{{d.nif}}</td>
-                <td>{{d.segmento}}</td>
-                <td>{{d.cod_postal}}</td>
-                <td [ngClass]="{'text-ok': d.id_estado==2, 'text-warning': d.id_estado==1, 'text-danger':d.id_estado==3}">
-                    {{d.estado}}</td>
-                <td ngClass="nba-{{ d.color.toLowerCase() }}">{{d.color}}</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
+                </ng-template>
+                <ng-template pTemplate="body" let-d>
+                    <tr>
+                        <td>
+                            <a [routerLink]="['/configurador/offer-detail', d.offerId]">{{d.offerId}}</a>
+                        </td>
+                        <td>{{d.created_date | date:'dd/MM/yyyy'}}</td>
+                        <td>{{d.sfid}}</td>
+                        <td>{{d.pdv}}</td>
+                        <td>{{d.usuario}}</td>
+                        <td>{{d.cliente}}</td>
+                        <td>{{d.telefono}}</td>
+                        <td>{{d.nif}}</td>
+                        <td>{{d.segmento}}</td>
+                        <td>{{d.cod_postal}}</td>
+                        <td [ngClass]="{'text-ok': d.id_estado==2, 'text-warning': d.id_estado==1, 'text-danger':d.id_estado==3}">
+                            {{d.estado}}</td>
+                        <td ngClass="nba-{{ d.color.toLowerCase() }}">{{d.color}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
 
 
-<div class="card p-4 mt-3" *ngIf="ofertasSecond || loadingData">
-    <h2 class="red-vf">Seguimiento estado detalle ofertas</h2>
+        <div class="card p-4 mt-3" *ngIf="ofertasSecond || loadingData">
+            <h2 class="red-vf">Seguimiento estado detalle ofertas</h2>
 
-    <app-loader-page *ngIf="loadingData"></app-loader-page>
-    <p-table *ngIf="!loadingData" #dt [value]="ofertasSecond" [paginator]="true" [rows]="20" [responsive]="true" [autoLayout]="true" class="text-nowrap">
-        <ng-template pTemplate="summary">
-            <div class="ui-helper-clearfix" style="text-align: left">
-                <button class="btn btn-primary float-right" (click)="exportExcel(ofertasSecond)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
-            </div>
-        </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <th class="text-center" pSortableColumn="offerId">PRESUPUESTO
-                    <p-sortIcon field="offerId"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="created_date">FECHA
-                    <p-sortIcon field="created_date"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="sfid">SFID
-                    <p-sortIcon field="sfid"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="pdv">PUNTO DE VENTA
-                    <p-sortIcon field="pdv"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="usuario">COMERCIAL
-                    <p-sortIcon field="usuario"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="cliente">CLIENTE
-                    <p-sortIcon field="cliente"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="telefono">TELEFONO
-                    <p-sortIcon field="telefono"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="nif">NIF
-                    <p-sortIcon field="nif"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="segmento">SEGMENTO
-                    <p-sortIcon field="segmento"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="cod_postal">C.P.
-                    <p-sortIcon field="cod_postal"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="estado">ESTADO
-                    <p-sortIcon field="estado"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="color">COLOR
-                    <p-sortIcon field="color"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="tipo">TIPO
-                    <p-sortIcon field="tipo"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="Tipo_op">TIPO OPERACIÓN
-                    <p-sortIcon field="Tipo_op"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="Tipo_op">OPERACIÓN
-                    <p-sortIcon field="operacion"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="producto">PRODUCTO
-                    <p-sortIcon field="producto"></p-sortIcon>
-                </th>
-                <th class="text-center" pSortableColumn="operador">OPERADOR
-                    <p-sortIcon field="operador"></p-sortIcon>
-                </th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-d>
-            <tr>
-                <td>
-                    <a [routerLink]="['/configurador/offer-detail', d.offerId]">{{d.offerId}}</a>
-                </td>
-                <td>{{d.created_date | date:'dd/MM/yyyy'}}</td>
-                <td>{{d.sfid}}</td>
-                <td>{{d.pdv}}</td>
-                <td>{{d.usuario}}</td>
-                <td>{{d.cliente}}</td>
-                <td>{{d.telefono}}</td>
-                <td>{{d.nif}}</td>
-                <td>{{d.segmento}}</td>
-                <td>{{d.cod_postal}}</td>
-                <td [ngClass]="{'text-ok': d.id_estado==2, 'text-warning': d.id_estado==1, 'text-danger':d.id_estado==3}">{{d.estado}}</td>
-                <td ngClass="nba-{{ d.color.toLowerCase() }}">{{d.color}}</td>
-                <td>{{d.tipo}}</td>
-                <td>{{d.Tipo_op}}</td>
-                <td>{{d.operacion}}</td>
-                <td>{{d.producto}}</td>
-                <td>{{d.operador}}</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
-No newline at end of file
+            <app-loader-page *ngIf="loadingData"></app-loader-page>
+            <p-table *ngIf="!loadingData" #dt [value]="ofertasSecond" [paginator]="true" [rows]="20" [responsive]="true" [autoLayout]="true" class="text-nowrap">
+                <ng-template pTemplate="summary">
+                    <div class="ui-helper-clearfix" style="text-align: left">
+                        <button class="btn btn-primary float-right" (click)="exportExcel(ofertasSecond)" [class.spinner]="loading" [disabled]="loading"><span [ngStyle]="loading ? {'visibility': 'hidden'} : ''">Exportar a Excel</span></button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center" pSortableColumn="offerId">PRESUPUESTO
+                            <p-sortIcon field="offerId"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="created_date">FECHA
+                            <p-sortIcon field="created_date"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="sfid">SFID
+                            <p-sortIcon field="sfid"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="pdv">PUNTO DE VENTA
+                            <p-sortIcon field="pdv"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="usuario">COMERCIAL
+                            <p-sortIcon field="usuario"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="cliente">CLIENTE
+                            <p-sortIcon field="cliente"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="telefono">TELEFONO
+                            <p-sortIcon field="telefono"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="nif">NIF
+                            <p-sortIcon field="nif"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="segmento">SEGMENTO
+                            <p-sortIcon field="segmento"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="cod_postal">C.P.
+                            <p-sortIcon field="cod_postal"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="estado">ESTADO
+                            <p-sortIcon field="estado"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="color">COLOR
+                            <p-sortIcon field="color"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="tipo">TIPO
+                            <p-sortIcon field="tipo"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="Tipo_op">TIPO OPERACIÓN
+                            <p-sortIcon field="Tipo_op"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="Tipo_op">OPERACIÓN
+                            <p-sortIcon field="operacion"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="producto">PRODUCTO
+                            <p-sortIcon field="producto"></p-sortIcon>
+                        </th>
+                        <th class="text-center" pSortableColumn="operador">OPERADOR
+                            <p-sortIcon field="operador"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-d>
+                    <tr>
+                        <td>
+                            <a [routerLink]="['/configurador/offer-detail', d.offerId]">{{d.offerId}}</a>
+                        </td>
+                        <td>{{d.created_date | date:'dd/MM/yyyy'}}</td>
+                        <td>{{d.sfid}}</td>
+                        <td>{{d.pdv}}</td>
+                        <td>{{d.usuario}}</td>
+                        <td>{{d.cliente}}</td>
+                        <td>{{d.telefono}}</td>
+                        <td>{{d.nif}}</td>
+                        <td>{{d.segmento}}</td>
+                        <td>{{d.cod_postal}}</td>
+                        <td [ngClass]="{'text-ok': d.id_estado==2, 'text-warning': d.id_estado==1, 'text-danger':d.id_estado==3}">{{d.estado}}</td>
+                        <td ngClass="nba-{{ d.color.toLowerCase() }}">{{d.color}}</td>
+                        <td>{{d.tipo}}</td>
+                        <td>{{d.Tipo_op}}</td>
+                        <td>{{d.operacion}}</td>
+                        <td>{{d.producto}}</td>
+                        <td>{{d.operador}}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
